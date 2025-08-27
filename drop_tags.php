@@ -12,12 +12,14 @@
 /**
  * required setup
  */
-require_once( "../kernel/includes/setup_inc.php" );
-require_once( TAGS_PKG_CLASS_PATH.'LibertyTag.php' );
+require_once "../kernel/includes/setup_inc.php";
+use Bitweaver\Tags\LibertyTag;
+use Bitweaver\KernelTools;
+use Bitweaver\HttpStatusCodes;
 
 $gBitSystem->verifyPackage( 'tags' );
 
-require_once( LIBERTY_PKG_INCLUDE_PATH.'lookup_content_inc.php' );
+require_once LIBERTY_PKG_INCLUDE_PATH.'lookup_content_inc.php';
 
 if (!$gContent || !$gContent->isValid()) {
 	$gBitSystem->fatalError( 'The content is not valid.' );
@@ -37,19 +39,15 @@ if( isset( $_REQUEST["confirm"] ) ) {
 	header("location: ".$gContent->getDisplayUrl());
 }
 
-$gBitSystem->setBrowserTitle( tra( 'Confirm drop of tags from: ' ).$gContent->getTitle() );
+$gBitSystem->setBrowserTitle( KernelTools::tra( 'Confirm drop of tags from: ' ).$gContent->getTitle() );
 $formHash['tag_id'] = implode(",", $_REQUEST['tag_id']);
 $formHash['content_id'] = $_REQUEST['content_id'];
 foreach($_REQUEST['tag_id'] as $id) {
 	$tags[] = $_REQUEST['tag_'.$id];
 }
 $msgHash = array(
-	'label' => tra( 'Drop Tags' ),
+	'label' => KernelTools::tra( 'Drop Tags' ),
 	'confirm_item' => implode("<br>", $tags),
-	'warning' => tra( 'These tags will be dropped from this content.<br />This cannot be undone!' ),
+	'warning' => KernelTools::tra( 'These tags will be dropped from this content.<br />This cannot be undone!' ),
 	);
 $gBitSystem->confirmDialog( $formHash,$msgHash );
-
-
-
-?>

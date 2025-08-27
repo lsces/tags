@@ -12,8 +12,9 @@
 /**
  * required setup
  */
-require_once( "../kernel/includes/setup_inc.php" );
-require_once( TAGS_PKG_CLASS_PATH.'LibertyTag.php' );
+require_once "../kernel/includes/setup_inc.php";
+use Bitweaver\Tags\LibertyTag;
+use Bitweaver\KernelTools;
 
 $gBitSystem->verifyPackage( 'tags' );
 
@@ -33,5 +34,4 @@ if( !empty( $_REQUEST["save"] ) ) {
 	}
 }
 
-$gBitSystem->display( 'bitpackage:tags/edit_tag.tpl', tra( "Edit Tag" ) , array( 'display_mode' => 'edit' ));
-?>
+$gBitSystem->display( 'bitpackage:tags/edit_tag.tpl', KernelTools::tra( "Edit Tag" ) , array( 'display_mode' => 'edit' ));

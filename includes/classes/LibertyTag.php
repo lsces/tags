@@ -11,15 +11,17 @@
 /**
  * required setup
  */
-require_once( KERNEL_PKG_CLASS_PATH.'BitBase.php' );
+namespace Bitweaver\Tags;
+use Bitweaver\BitBase;
+use Bitweaver\Liberty\LibertyContent;
 
 /**
  * @package tags
  */
-class LibertyTag extends LibertyBase {
+class LibertyTag extends \Bitweaver\Liberty\LibertyBase {
 	var $mContentId;
 
-	function __construct( $pContentId=NULL ) {
+	function __construct( $pContentId=null ) {
 		parent::__construct();
 		$this->mContentId = $pContentId;
 	}
@@ -44,7 +46,7 @@ class LibertyTag extends LibertyBase {
 
 	/**
 	* Load all the tags for a given ContentId
-	* @param pParamHash be sure to pass by reference in case we need to make modifcations to the hash
+	* @param array pParamHash be sure to pass by reference in case we need to make modifcations to the hash
 	**/
 	function load() {
 		if( $this->isValid() ) {
@@ -57,7 +59,7 @@ class LibertyTag extends LibertyBase {
 			//$this->mInfo = $this->mDb->query( $query, array( $this->mContentId ) );
 			$result = $this->mDb->query( $query, array( $this->mContentId ) );
 			if ($result) {
-				$ret = array();
+				$ret = [];
 				while ($res = $result->fetchRow()) {
 					//Add tag urls
 					$res['tag_url'] = LibertyTag::getDisplayUrlWithTag($res['tag']);
@@ -67,13 +69,13 @@ class LibertyTag extends LibertyBase {
 				$this->mInfo['tags'] = $ret;
 			}
 		}
-		return( count( $this->mInfo ) );
+		return count( $this->mInfo );
 	}
 
 	function loadTag ( &$pParamHash ){
 		if( !empty( $pParamHash['tag_id'] ) && is_numeric( $pParamHash['tag_id'] )) {
 			$selectSql = ''; $joinSql = ''; $whereSql = '';
-			$bindVars = array();
+			$bindVars = [];
 
 			$whereSql .= "WHERE tg.`tag_id` = ?";
 			$bindVars[] = $pParamHash['tag_id'];
@@ -90,7 +92,7 @@ class LibertyTag extends LibertyBase {
 				$this->mInfo = $result;
 			};
 		}
-		return( count( $this->mInfo ) );
+		return count( $this->mInfo );
 	}
 
 
@@ -98,13 +100,13 @@ class LibertyTag extends LibertyBase {
 	/**
 	* Make sure the data is safe to store
 	* @param array pParams reference to hash of values that will be used to store the page, they will be modified where necessary
-	* @return bool TRUE on success, FALSE if verify failed. If FALSE, $this->mErrors will have reason why
+	* @return bool true on success, false if verify failed. If false, $this->mErrors will have reason why
 	* @access private
 	**/
-	function verify( &$pParamHash ) {
+	public function verify( array &$pParamHash ): bool {
 		global $gBitUser, $gBitSystem;
-		$pParamHash['tag_store'] = array();
-		$pParamHash['tag_map_store'] = array();
+		$pParamHash['tag_store'] = [];
+		$pParamHash['tag_map_store'] = [];
 
 		if(!empty( $pParamHash['tag'])){
 			$pParamHash['tag_store']['tag'] = $pParamHash['tag'];
@@ -113,11 +115,8 @@ class LibertyTag extends LibertyBase {
 //			$pParamHash['tag_map_store']['tag_id'] = $pParamHash['tag_id'];
 			$pParamHash['tag_store']['tag_id'] = $pParamHash['tag_id'];
 		}
-		if( isset( $pParamHash['tagged_on']) ){
-			$pParamHash['tag_map_store']['tagged_on'] = $pParamHash['tagged_on'];
-		} else {
-			$pParamHash['tag_map_store']['tagged_on'] = $gBitSystem->getUTCTime();
-		}
+		$pParamHash['tag_map_store']['tagged_on'] = isset( $pParamHash['tagged_on']) ? $pParamHash['tagged_on'] : $gBitSystem->getUTCTime();
+
 		if( @$this->verifyId( $pParamHash['content_id']) ){
 			$pParamHash['tag_map_store']['content_id'] = $pParamHash['content_id'];
 		}/* else {
@@ -129,16 +128,16 @@ class LibertyTag extends LibertyBase {
 			$this->mErrors['user_id'] = "No user id specified.";
 		}
 
-		return( count( $this->mErrors )== 0 );
+		return count( $this->mErrors )== 0;
 	}
 
 
 	/* check tag exists
 	 */
 	function verifyTag ( &$pParamHash ){
-		$ret = FALSE;
+		$ret = false;
 		$selectSql = ''; $joinSql = ''; $whereSql = '';
-		$bindVars = array();
+		$bindVars = [];
 
 		// Bounds checking on tag name length
 		if( !empty( $pParamHash['tag'] ) && strlen( $pParamHash['tag'] ) > 64 ) {
@@ -158,7 +157,7 @@ class LibertyTag extends LibertyBase {
 		if ( $result = $this->mDb->getRow( $query, $bindVars ) ){
 			$pParamHash['tag_id'] = $result['tag_id'];
 			$this->mTagId = $result['tag'];
-			$ret = TRUE;
+			$ret = true;
 		};
 
 		return $ret;
@@ -168,10 +167,9 @@ class LibertyTag extends LibertyBase {
 
 	/**
 	* @param array pParams hash of values that will be used to store the page
-	* @return bool TRUE on success, FALSE if store could not occur. If FALSE, $this->mErrors will have reason why
-	* @access public
+	* @return bool true on success, false if store could not occur. If false, $this->mErrors will have reason why
 	**/
-	function store( &$pParamHash ) {
+	public function store( array &$pParamHash): bool {
 		if( $this->verify( $pParamHash ) ) {
 			$this->mDb->StartTrans();
 			if (!empty($pParamHash['tag_store'])) {
@@ -192,7 +190,7 @@ class LibertyTag extends LibertyBase {
 			// since we use store generally in a loop of several tags we should not load here
 			//$this->load();
 		}
-		return( count( $this->mErrors )== 0 );
+		return count( $this->mErrors )== 0;
 	}
 
 
@@ -214,7 +212,7 @@ class LibertyTag extends LibertyBase {
 			$this->mDb->CompleteTrans();
 			$this->loadTag( $pParamHash['tag_store'] );
 		}
-		return( count( $this->mErrors )== 0 );
+		return count( $this->mErrors )== 0;
 	}
 
 	function sanitizeTag($pTag) {
@@ -246,13 +244,13 @@ class LibertyTag extends LibertyBase {
 	function verifyTagsMap( &$pParamHash ) {
 		global $gBitUser, $gBitSystem;
 
-		$pParamHash['tag_map_store'] = array();
+		$pParamHash['tag_map_store'] = [];
 
 		//this is to set the time we add content to a tag.
 		$timeStamp = $gBitSystem->getUTCTime();
 
 		//need to break up this string
-		$tagMixed = isset($pParamHash['tags']) ? $pParamHash['tags'] : NULL;
+		$tagMixed = isset($pParamHash['tags']) ? $pParamHash['tags'] : null;
 		if( !empty( $tagMixed )){
 			if (!is_array( $tagMixed ) && !is_numeric( $tagMixed ) ){
 				$tagIds = explode( ",", $tagMixed );
@@ -282,13 +280,13 @@ class LibertyTag extends LibertyBase {
 			}
 		}
 
-		return ( count( $this->mErrors ) == 0 );
+		return count( $this->mErrors ) == 0;
 	}
 
 
 	/**
 	* @param array pParams hash includes mix of tags that will be storeded and associated with a ContentId used by service
-	* @return bool TRUE on success, FALSE if store could not occur. If FALSE, $this->mErrors will have reason why
+	* @return bool true on success, false if store could not occur. If false, $this->mErrors will have reason why
 	* @access public
 	**/
 	function storeTags( &$pParamHash ){
@@ -301,43 +299,41 @@ class LibertyTag extends LibertyBase {
 				$this->load();
 			}
 		}
-		return ( count( $this->mErrors ) == 0 );
+		return count( $this->mErrors ) == 0;
 	}
 
 
 	/**
 	* check if the mContentId is set and valid
 	*/
-	function isValid() {
-		return( @BitBase::verifyId( $this->mContentId ) );
+	public function isValid() {
+		return BitBase::verifyId( $this->mContentId );
 	}
 
 	/**
 	* This function removes a tag entry
 	**/
-	function expunge( $tag_id ) {
-		$ret = FALSE;
+	public function expungeTag( $tag_id ): void {
 		$this->mDb->StartTrans();
 		$query = "DELETE FROM `".BIT_DB_PREFIX."tags_content_map` WHERE `tag_id` = ?";
 
-		if ( $result = $this->mDb->query( $query, array( $tag_id ) ) ){
+		if ( $result = $this->mDb->query( $query, [ $tag_id ] ) ){
 			// remove all references to tag in tags_content_map
 			$query = "DELETE FROM `".BIT_DB_PREFIX."tags` WHERE `tag_id` = ?";
-			if ( $result = $this->mDb->query( $query, array( $tag_id ) ) ) {
-				$ret = TRUE;
+			if ( $result = $this->mDb->query( $query, [ $tag_id ] ) ) {
+				$ret = true;
 			}else{
 				//some rollback feature would be nice here
 			}
 		}
 		$this->mDb->CompleteTrans();
-		return $ret;
 	}
 
 	/**
 	* This function removes all references to contentid from tags_content_map
 	**/
 	function expungeContentFromTagMap(){
-		$ret = FALSE;
+		$ret = false;
 		if( $this->isValid() ) {
 			$this->mDb->StartTrans();
 			$query = "DELETE FROM `".BIT_DB_PREFIX."tags_content_map` WHERE `content_id` = ?";
@@ -352,7 +348,7 @@ class LibertyTag extends LibertyBase {
 	**/
 	function expungeMyContentFromTagMap( &$pObject ){
 		global $gBitUser;
-		$ret = FALSE;
+		$ret = false;
 		if( $this->isValid() ) {
 			$this->mDb->StartTrans();
 			$whereSql = "";
@@ -380,7 +376,7 @@ class LibertyTag extends LibertyBase {
 			$result = $this->mDb->query( $query, $bind );
 			foreach( $pTagIdArray as $tagId ) {
 				if( !$this->mDb->getOne( "SELECT COUNT(*) FROM `".BIT_DB_PREFIX."tags_content_map` WHERE `tag_id`=?", array( $tagId ) ) ) {
-					$this->expunge( $tagId );
+					$this->expungeTag( $tagId );
 				}
 			}
 			$this->mDb->CompleteTrans();
@@ -408,7 +404,7 @@ class LibertyTag extends LibertyBase {
 	function getList( &$pParamHash ) {
 		global $gBitUser, $gBitSystem;
 
-		$bindVars = array();
+		$bindVars = [];
 		$joinSql = !empty($pParamHash['join_sql']) ? $pParamHash['join_sql'] : '';
 
 		if( !empty( $pParamHash['content_type_guid'] ) ) {
@@ -459,11 +455,11 @@ class LibertyTag extends LibertyBase {
 				$joinSql
 				GROUP BY tg.`tag_id`,tg.`tag`
 				ORDER BY $sort_mode";
-		$result = $this->mDb->query( $query,$bindVars, ( !empty($pParamHash['max_records']) ? $pParamHash['max_records'] : NULL ) );
+		$result = $this->mDb->query( $query,$bindVars, !empty($pParamHash['max_records']) ? $pParamHash['max_records'] : null );
 
 		$queryCount = "SELECT COUNT( * ) FROM `".BIT_DB_PREFIX."tags` tg";
 		$cant = $this->mDb->getOne( $queryCount );
-		$ret = array();
+		$ret = [];
 
 		while ($res = $result->fetchRow()) {
 			// this was really sucky, its now replaced by the slightly lesssucky subselect above. the subselect should prolly be replaced with a count table
@@ -493,15 +489,11 @@ class LibertyTag extends LibertyBase {
 			$cantoffset = $highcant - $lowcant;
 
 			//2.  ratio 10/x
-			if ($cantoffset > 9){
-				$tagscale = 9/$cantoffset;
-			}else{
-				//@todo make this more sophisticated if the spread is not big enough
-				$tagscale = 9/$cantoffset;
-			}
+			$tagscale = $cantoffset > 9 ? 9/$cantoffset : 9/$cantoffset;
+
 			//3.  (n - low+1)*ratio  (n is # to be scaled)
 			foreach ($ret as $key => $row) {
-				$ret[$key]['tagscale']  = round((($row['tag_count'] - $lowcant) * $tagscale) + 1, 0);
+				$ret[$key]['tagscale']  = round(($row['tag_count'] - $lowcant) * $tagscale + 1, 0);
 			}
 		}
 
@@ -512,7 +504,7 @@ class LibertyTag extends LibertyBase {
 			array_multisort($popcant, SORT_DESC, $max_popular);
 	 		$max_popular = array_slice($max_popular, 0, $pParamHash["max_popular"]);
 	 		// preserve the sort requested by matching to the original list
-			$sorted_popular = array();
+			$sorted_popular = [];
 			foreach ( $ret as $retkey => $retrow){
 				foreach ( $max_popular as $key => $row){
 					if ( $row['tag_id'] ==  $retrow['tag_id'] ){
@@ -558,16 +550,16 @@ class LibertyTag extends LibertyBase {
 		}
 
 		$max_content = ( !empty( $pParamHash['max_records'] )) ? $pParamHash['max_records'] : $gBitSystem->getConfig( 'max_records' );
-		$gBitSmarty->assign( 'user_id', @BitBase::verifyId( $pParamHash['user_id'] ) ? $pParamHash['user_id'] : NULL );
+		$gBitSmarty->assign( 'user_id', BitBase::verifyId( $pParamHash['user_id'] ) ? $pParamHash['user_id'] : null );
 
 		// now that we have all the offsets, we can get the content list
-		include_once( LIBERTY_PKG_INCLUDE_PATH.'get_content_list_inc.php' );
+		include_once LIBERTY_PKG_INCLUDE_PATH.'get_content_list_inc.php';
 
 		$gBitSmarty->assign( 'contentSelect', $contentSelect );
 		$gBitSmarty->assign( 'contentTypes', $contentTypes );
 		$contentListHash['parameters']['content_type_guid'] = $contentSelect;
 		$gBitSmarty->assign( 'listInfo', $contentListHash );
-		$gBitSmarty->assign( 'content_type_guids', ( isset( $pParamHash['content_type_guid'] ) ? $pParamHash['content_type_guid'] : NULL ));
+		$gBitSmarty->assign( 'content_type_guids', isset( $pParamHash['content_type_guid'] ) ? $pParamHash['content_type_guid'] : null );
 
 		if ( isset($pParamHash['matchtags']) && $pParamHash['matchtags'] == 'all'){
 			//need some sort of matching function
@@ -576,8 +568,8 @@ class LibertyTag extends LibertyBase {
 			$distinctdata = $this->array_distinct( $contentList, 'content_id' );
 			$distinctdata = array_merge($distinctdata);
 		}
-		$gBitSmarty->assignByRef('contentList', $distinctdata);
-		return $contentList;
+		$gBitSmarty->assign('contentList', $distinctdata);
+		return $distinctdata;
 	}
 
 
@@ -590,15 +582,15 @@ class LibertyTag extends LibertyBase {
 	* @param $sum_keys - columns which have to be summed - can be STRING or ARRAY (STRING, STRING[, ...])
 	* @param $count_key - must be STRING - count the grouped keys
 	*/
-	function array_distinct ($array, $group_keys, $sum_keys = NULL, $count_key = NULL){
+	function array_distinct ($array, $group_keys, $sum_keys = null, $count_key = null){
 	  if (!is_array ($group_keys)) $group_keys = array ($group_keys);
 	  if (!is_array ($sum_keys)) $sum_keys = array ($sum_keys);
 
-	  $existing_sub_keys = array ();
-	  $output = array ();
+	  $existing_sub_keys = [];
+	  $output = [];
 
 	  foreach ($array as $key => $sub_array){
-	   $puffer = NULL;
+	   $puffer = null;
 	   #group keys
 	   foreach ($group_keys as $group_key){
 		 $puffer .= $sub_array[$group_key];
@@ -633,7 +625,7 @@ function tags_content_display( &$pObject ) {
 			if( $gBitUser->hasPermission( 'p_tags_view' ) ) {
 				$tag = new LibertyTag( $pObject->mContentId );
 				if( $tag->load() ) {
-					$gBitSmarty->assign( 'tagData', !empty( $tag->mInfo['tags'] ) ? $tag->mInfo['tags'] : NULL );
+					$gBitSmarty->assign( 'tagData', !empty( $tag->mInfo['tags'] ) ? $tag->mInfo['tags'] : null );
 				}
 			}
 		}
@@ -644,9 +636,9 @@ function tags_content_display( &$pObject ) {
  * filter the search with pigeonholes
  * @param $pParamHash['tags']['filter'] - a tag or an array of tags
  **/
-function tags_content_list_sql( &$pObject, &$pParamHash = NULL ) {
+function tags_content_list_sql( &$pObject, &$pParamHash = null ) {
 	global $gBitSystem;
-	$ret = array();
+	$ret = [];
 
 	if (isset($pParamHash['tags']) && !empty($pParamHash['tags'])){
 		/* slated for removal - makes no sense since content likely has multiple tags */
@@ -665,7 +657,7 @@ function tags_content_list_sql( &$pObject, &$pParamHash = NULL ) {
 			}
 		}
 
-		$tags = array();
+		$tags = [];
 		// strip off whitespace
 		foreach( $tagIds as $value ){
 			// ignore empty ones created by trailing ,'s
@@ -687,14 +679,14 @@ function tags_content_list_sql( &$pObject, &$pParamHash = NULL ) {
 	return $ret;
 }
 
-function tags_content_edit( $pObject=NULL ) {
+function tags_content_edit( $pObject=null ) {
 	global $gBitSystem, $gBitSmarty, $gBitUser;
 	
 	if( method_exists( $pObject, 'getContentType' ) && $gBitSystem->isFeatureActive( 'tags_tag_'.$pObject->getContentType()) ){
 		if ( $gBitSystem->isPackageActive( 'tags' )) {
 			$tag = new LibertyTag( $pObject->mContentId );
 			if( $tag->load() && ($pObject->hasUserPermission( 'p_tags_create' ) || $gBitUser->hasPermission( 'p_tags_moderate' )) ) {
-				$tags = array();
+				$tags = [];
 				foreach ($tag->mInfo['tags'] as $t) {
 					if ($t['tagger_id'] == $gBitUser->mUserId || $gBitUser->hasPermission('p_tags_admin') ) {
 						$tags[] = $t['tag'];
@@ -703,7 +695,7 @@ function tags_content_edit( $pObject=NULL ) {
 
 				$pObject->setField( 'tags', implode(", ", $tags) );
 
-				$gBitSmarty->assign( 'loadTags', TRUE );
+				$gBitSmarty->assign( 'loadTags', true );
 				$gBitSmarty->assign( 'tagList', $pObject->getField( 'tags' ) );
 				$gBitSmarty->assign( 'tagData', $tag->getField( 'tags' ) );
 			}
@@ -712,12 +704,13 @@ function tags_content_edit( $pObject=NULL ) {
 }
 
 /**
- * @param includes a string or array of 'tags' and contentid for association.
+ * @param object source content
+ * @param array includes a string or array of 'tags' and contentid for association.
  **/
 function tags_content_store( &$pObject, &$pParamHash ) {
 	global $gBitUser, $gBitSystem;
 	if( $gBitUser->hasPermission( 'p_tags_create' ) ) {
-		$errors = NULL;
+		$errors = null;
 		// If a content access system is active, let's call it
 		if( $gBitSystem->isPackageActive( 'tags' ) && isset( $pParamHash['tags'] ) ) {
 			$tag = new LibertyTag( $pObject->mContentId );
@@ -728,7 +721,7 @@ function tags_content_store( &$pObject, &$pParamHash ) {
 				$errors=$tag->mErrors;
 			}
 		}
-		return( $errors );
+		return $errors;
 	}
 }
 
@@ -758,5 +751,3 @@ function tags_user_expunge( &$pObject ) {
 		$pObject->mDb->CompleteTrans();
 	}
 }
-
-?>
