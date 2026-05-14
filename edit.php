@@ -25,7 +25,7 @@ if ( !$gBitUser->hasPermission('p_tags_admin') ){
 $tag = new LibertyTag();
 
 if ( $tag->loadTag ( $_REQUEST ) ){
-	$gBitSmarty->assign( 'tagData', $tag->mInfo );	
+	$gBitSmarty->assign( 'tagData', $tag->mInfo );
 }
 
 if( !empty( $_REQUEST["save"] ) ) {
@@ -34,4 +34,4 @@ if( !empty( $_REQUEST["save"] ) ) {
 	}
 }
 
-$gBitSystem->display( 'bitpackage:tags/edit_tag.tpl', KernelTools::tra( "Edit Tag" ) , array( 'display_mode' => 'edit' ));
+$gBitSystem->display( 'bitpackage:tags/edit_tag.tpl', KernelTools::tra( "Edit Tag" ) , [ 'display_mode' => 'edit' ]);

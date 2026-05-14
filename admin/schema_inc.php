@@ -13,7 +13,7 @@ $tables = [
     CONSTRAINT ', CONSTRAINT `tags_content_map_tag_ref` FOREIGN KEY (`tag_id`) REFERENCES `".BIT_DB_PREFIX."tags` ( `tag_id` )
                 , CONSTRAINT `tags_content_map_content_ref` FOREIGN KEY (`content_id`) REFERENCES `".BIT_DB_PREFIX."liberty_content` ( `content_id` )
                 , CONSTRAINT `tags_content_map_tagger_id_ref` FOREIGN KEY (`tagger_id`) REFERENCES `".BIT_DB_PREFIX."users_users` ( `user_id` )'
-  "
+  ",
 ];
 
 global $gBitInstaller;
@@ -27,9 +27,8 @@ $gBitInstaller->registerPackageInfo( TAGS_PKG_NAME, [
 	'license' => '<a href="http://www.gnu.org/licenses/licenses.html#LGPL">LGPL</a>',
 ] );
 
-
 $gBitInstaller->registerPreferences( TAGS_PKG_NAME, [
-    [ TAGS_PKG_NAME, 'tags_in_view', 'y' ],
+	[ TAGS_PKG_NAME, 'tags_in_view', 'y' ],
 		[ TAGS_PKG_NAME, 'tags_list_title', 'y' ],
 		[ TAGS_PKG_NAME, 'tags_list_type', 'y' ],
 		[ TAGS_PKG_NAME, 'tags_list_author', 'y' ],
@@ -42,7 +41,6 @@ $sequences = [
 ];
 $gBitInstaller->registerSchemaSequences( TAGS_PKG_NAME, $sequences );
 
-
 // ### Default UserPermissions
 $gBitInstaller->registerUserPermissions( TAGS_PKG_NAME, [
 	[ 'p_tags_admin', 'Can admin tags', 'admin', TAGS_PKG_NAME ],
@@ -53,5 +51,5 @@ $gBitInstaller->registerUserPermissions( TAGS_PKG_NAME, [
 
 // Requirements
 $gBitInstaller->registerRequirements( TAGS_PKG_NAME, [
-    'liberty' => [ 'min' => '5.0.0' ],
+	'liberty' => [ 'min' => '5.0.0' ],
 ] );

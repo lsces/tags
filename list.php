@@ -24,10 +24,10 @@ if( !empty( $_REQUEST['action'] ) ) {
 		if ( !$gBitUser->hasPermission('p_tags_moderate') ){
 			$gBitSystem->fatalError( KernelTools::tra('You do not have permission to remove tags.') );
 		}
-		
+
 		$tmpTag = new LibertyTag();
 		$tmpTag->loadTag($_REQUEST);
-		
+
 		if( isset( $_REQUEST["confirm"] ) ) {
 			if( $tmpTag->expungeTag( $tmpTag->mInfo['tag_id'] ) ) {
 				KernelTools::bit_redirect( TAGS_PKG_URL.'list.php?status_id='.( !empty( $_REQUEST['status_id'] ) ? $_REQUEST['status_id'] : '' ) );
@@ -40,12 +40,12 @@ if( !empty( $_REQUEST['action'] ) ) {
 		$formHash['action'] = 'remove';
 		$formHash['status_id'] = !empty( $_REQUEST['status_id'] ) ? $_REQUEST['status_id'] : '';
 		$formHash['tag_id'] = $_REQUEST['tag_id'];
-		$msgHash = array(
+		$msgHash = [
 			'label' => KernelTools::tra('Remove Tag'),
 			'confirm_item' => $tmpTag->mInfo['tag'],
 			'warning' => 'This will remove the above tag.',
 			'error' => KernelTools::tra('This cannot be undone!'),
-		);
+		];
 		$gBitSystem->confirmDialog( $formHash, $msgHash );
 	}
 }
@@ -66,9 +66,9 @@ if( isset($_REQUEST['tags']) ){
 	$tagData = $tag->getList( $tagHash );
 	$gBitSmarty->assign( 'tagData', $tagData["data"] );
 	$gBitSmarty->assign( 'tagsReq', $_REQUEST['tags'] );
-	$gBitSystem->display( 'bitpackage:tags/list_content.tpl', $pageTitle, array( 'display_mode' => 'list' ));
+	$gBitSystem->display( 'bitpackage:tags/list_content.tpl', $pageTitle, [ 'display_mode' => 'list' ]);
 }else{
 	$listData = $tag->getList( $listHash );
 	$gBitSmarty->assign( 'tagData', $listData["data"] );
-	$gBitSystem->display( 'bitpackage:tags/list_tags.tpl', KernelTools::tra( 'Tags' ) , array( 'display_mode' => 'list' ));
+	$gBitSystem->display( 'bitpackage:tags/list_tags.tpl', KernelTools::tra( 'Tags' ) , [ 'display_mode' => 'list' ]);
 }

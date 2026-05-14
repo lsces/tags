@@ -15,7 +15,6 @@
 require_once "../kernel/includes/setup_inc.php";
 use Bitweaver\Tags\LibertyTag;
 use Bitweaver\KernelTools;
-use Bitweaver\HttpStatusCodes;
 
 $gBitSystem->verifyPackage( 'tags' );
 
@@ -45,9 +44,9 @@ $formHash['content_id'] = $_REQUEST['content_id'];
 foreach($_REQUEST['tag_id'] as $id) {
 	$tags[] = $_REQUEST['tag_'.$id];
 }
-$msgHash = array(
+$msgHash = [
 	'label' => KernelTools::tra( 'Drop Tags' ),
 	'confirm_item' => implode("<br>", $tags),
 	'warning' => KernelTools::tra( 'These tags will be dropped from this content.<br />This cannot be undone!' ),
-	);
+	];
 $gBitSystem->confirmDialog( $formHash,$msgHash );
