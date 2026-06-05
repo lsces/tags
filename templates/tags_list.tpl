@@ -20,7 +20,7 @@
 						{smartlink ititle="Edit" ifile="edit.php" biticon="document-properties" tag_id=$tag.tag_id}
 					{/if}
 					{if $gBitUser->hasPermission( 'p_tags_moderate' )}
-						{smartlink ititle="Remove" biticon="edit-delete" action=remove tag_id=$tag.tag_id status_id=$smarty.request.status_id}
+						{smartlink ititle="Remove" biticon="user-trash" action=remove tag_id=$tag.tag_id status_id=$smarty.request.status_id}
 					{/if}
 				</td>
 			</tr>
